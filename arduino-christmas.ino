@@ -28,6 +28,7 @@ float inter;
 float lag = 0.4;
 float a = 7;
 
+// Update the time constants for each mode based on the general speed
 void updateSpeeds() {
   if (speed == 1) {
     fade_duration = 3000;
@@ -43,7 +44,6 @@ void updateSpeeds() {
 
 void setup() {
   // put your setup code here, to run once:
-  
 
   Serial.begin(9600);
   Serial.println("hello");
@@ -67,8 +67,8 @@ void loop() {
     for (int channel = 0; channel < NUM_TLCS * 16; channel += 1) {
       inter = (1+sin(whatever_freq* micros()/1000000.0 + channel*lag))/2.0;
       inter = brightness*(exp(a*inter)-1)/(exp(a)-1);
-    
-      value = 4095*inter; 
+
+      value = 4095*inter;
         //Serial.println(value);
         if (channel == 13) {
           Tlc.set(channel,4095-value);
@@ -78,7 +78,7 @@ void loop() {
       }
       Tlc.update();
   } else if (mode == 2) {
-    // FADE MODE (default fade
+    // FADE MODE (default fade)
       if (tlc_fadeBufferSize < TLC_FADE_BUFFER_LENGTH - 2) {
       if (!tlc_isFading(channel)) {
         int maxValue = (int) 4095*brightness;
@@ -93,10 +93,10 @@ void loop() {
     }
     tlc_updateFades();
   }
-  
+
   if (digitalRead(6) == LOW || digitalRead(7) == LOW) {
-    delay(20);
-    tlc_removeFades(channel);
+    delay(20); // Give the user some time to press both buttons if needed
+    tlc_removeFades(channel); // Reset all fades that we can't set
     if (digitalRead(6) == LOW && digitalRead(7) == LOW) {
       brightness = 0;
       Tlc.setAll(0);
@@ -109,12 +109,9 @@ void loop() {
         speed = 1;
       }
       updateSpeeds();
-    } else if (digitalRead(7) == LOW) {      
-      if (brightness > 0.01) brightness = (brightness/3.0);
+    } else if (digitalRead(7) == LOW) {
+      if (brightness > 0.01) brightness = (brightness/2.0); // Exponentially decrease brightness
       else brightness = 1;
-
-      Serial.println(brightness);
-      
     }
 
     do {

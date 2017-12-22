@@ -1,2 +1,2 @@
 # arduino-christmas
-Christmas lights powered by an Ardunio and a TLC5940
+Christmas LED lights powered by an Arduino and a TLC5940
